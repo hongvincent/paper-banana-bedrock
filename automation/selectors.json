@@ -1,0 +1,18 @@
+{
+  "_comment": "Selectors for the target nano-banana / AI Studio web UI. Update these if the DOM changes. The automation tries each selector in order until one resolves.",
+  "target_url": "https://aistudio.google.com/app/prompts/new",
+  "wait_after_goto_ms": 3500,
+  "prompt_input": [
+    "textarea[aria-label*='prompt' i]",
+    "textarea[placeholder*='prompt' i]",
+    "div[contenteditable='true'][role='textbox']",
+    "textarea"
+  ],
+  "submit_button": [
+    "button[aria-label*='run' i]",
+    "button[aria-label*='submit' i]",
+    "button:has-text('Run')",
+    "button:has-text('Generate')"
+  ],
+  "screenshot_after_ms": 20000
+}

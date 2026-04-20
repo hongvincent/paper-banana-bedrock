@@ -31,6 +31,12 @@ credentials.json
 aws-credentials*
 .awsrc
 
+# Playwright session state + browser traces
+.auth/
+playwright-traces/
+screenshots/
+*.session.json
+
 # Generated outputs
 outputs/
 results/

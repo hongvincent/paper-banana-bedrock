@@ -169,6 +169,40 @@ outputs/variants_20260420T111655Z/
 - 내부적으로 `asyncio.gather`로 Bedrock 호출을 **동시 실행**하므로 N개라도 1~2회분 지연만 발생합니다.
 - 각 `.md`를 nano-banana / DALL·E / Flux / Imagen에 따로 투입하면 세 가지 다른 이미지를 얻을 수 있습니다.
 
+### 웹 UI 자동화 (Playwright로 나노바나나에 N개 탭 동시 투입)
+
+생성된 N개 프롬프트 MD를 Google AI Studio(나노바나나) 웹 UI에 **한 번에 N개 탭으로** 자동 붙여넣는 스크립트가 포함돼 있습니다. 설계 원칙:
+
+- **패스워드는 코드가 절대 다루지 않음** — 1회 수동 로그인 후 `storageState.json` 재사용
+- `.auth/`, `screenshots/`, `playwright-traces/`는 모두 `.gitignore`
+- 커밋 전 `scripts/security_scan.sh`가 회사 도메인·AWS 키·토큰 패턴을 자동 차단
+
+**1회 세팅**:
+
+```bash
+pip install playwright && playwright install chromium
+python -m automation.session_setup     # 브라우저가 열림 → 본인 계정으로 수동 로그인 → ENTER
+# -> .auth/nano_banana_state.json 저장 (모드 600, gitignored)
+```
+
+**실행** (`outputs/variants_<ts>/`에 있는 모든 variant MD 각각을 별도 탭에):
+
+```bash
+# 드라이런 — 프롬프트만 붙여넣고 Run은 수동
+python -m automation.run_tabs outputs/variants_20260420T111655Z/
+
+# 자동 제출 + 각 탭 스크린샷
+python -m automation.run_tabs outputs/variants_20260420T111655Z/ --submit --screenshot
+
+# 동시 탭 수 제한
+python -m automation.run_tabs outputs/variants_20260420T111655Z/ --max-tabs 3
+```
+
+**주의사항**:
+- Google UI의 DOM이 바뀌면 `automation/selectors.json`의 셀렉터를 업데이트.
+- 너무 많은 탭을 동시에 열면 Google 봇 감지가 발동할 수 있음 — `--max-tabs 3` 정도 권장.
+- 대상 URL은 `NANO_BANANA_URL` 환경변수 또는 `selectors.json`의 `target_url`로 오버라이드.
+
 ### 전체 파이프라인
 
 ```bash
