@@ -1,18 +1,75 @@
 {
-  "_comment": "Selectors for the target nano-banana / AI Studio web UI. Update these if the DOM changes. The automation tries each selector in order until one resolves.",
-  "target_url": "https://aistudio.google.com/app/prompts/new",
-  "wait_after_goto_ms": 3500,
+  "_comment": "Selectors for the target web UI. Defaults are for Gemini app (gemini.google.com). Update if the DOM changes — each list is tried in order until one resolves.",
+  "target_url": "https://gemini.google.com/app",
+  "wait_after_goto_ms": 4000,
   "prompt_input": [
-    "textarea[aria-label*='prompt' i]",
-    "textarea[placeholder*='prompt' i]",
+    "rich-textarea div[contenteditable='true']",
     "div[contenteditable='true'][role='textbox']",
-    "textarea"
+    "div[contenteditable='true'].ql-editor",
+    "div[contenteditable='true']"
   ],
   "submit_button": [
-    "button[aria-label*='run' i]",
-    "button[aria-label*='submit' i]",
-    "button:has-text('Run')",
-    "button:has-text('Generate')"
+    "button[aria-label*='Send message' i]",
+    "button[aria-label*='전송' i]",
+    "button[aria-label*='보내기' i]",
+    "button[aria-label*='Send' i]",
+    "button.send-button"
   ],
-  "screenshot_after_ms": 20000
+  "image_mode_toggle": [
+    "button:has-text('이미지 만들기')",
+    "button:has-text('Create images')",
+    "button:has-text('Generate image')",
+    "[aria-label*='이미지' i]",
+    "[aria-label*='image' i]"
+  ],
+  "style_card_first": [
+    "button[role='radio']",
+    ".style-card",
+    "[data-testid*='style-option']",
+    "mat-chip[role='option']"
+  ],
+  "generated_image": [
+    "button.image-button img",
+    "button[class*='image-button'] img",
+    "img[src^='blob:https://gemini.google.com']",
+    "img[src*='lh3.googleusercontent.com']",
+    "img[src*='googleusercontent.com']",
+    "model-response img[src^='https']",
+    "img[alt*='생성' i]",
+    "img[alt*='Generated' i]"
+  ],
+  "min_image_width": 512,
+  "image_src_allow_substrings": [
+    "blob:https://gemini.google.com",
+    "lh3.googleusercontent.com",
+    "googleusercontent.com/drive",
+    "storage.googleapis.com"
+  ],
+  "image_src_deny_substrings": [
+    "admin.googleusercontent.com",
+    "/logo-scs",
+    "/avatar",
+    "gstatic.com",
+    "/a-/",
+    "=s32",
+    "=s48",
+    "=s96"
+  ],
+  "typing_delay_ms": 10,
+  "serial_gap_s_min": 8,
+  "serial_gap_s_max": 22,
+  "loading_indicator": [
+    "mat-progress-spinner",
+    "[role='progressbar']",
+    "[aria-label*='generating' i]",
+    "[aria-label*='생성 중' i]"
+  ],
+  "download_button": [
+    "button[aria-label*='원본 크기' i]",
+    "button[aria-label*='다운로드' i]",
+    "button[aria-label*='Download original' i]",
+    "button[aria-label*='Download' i]",
+    "a[download]"
+  ],
+  "screenshot_after_ms": 25000
 }
