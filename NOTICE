@@ -1,0 +1,23 @@
+PaperBanana-Bedrock
+===================
+
+This project is a fork of PaperBanana (https://github.com/dwzhu-pku/PaperBanana),
+licensed under the Apache License, Version 2.0.
+
+Original work:
+  Copyright 2026 Google LLC
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Modifications in this fork:
+  - Replaced Google Gemini API integration with AWS Bedrock (Anthropic
+    Claude Sonnet 4.6) for text/reasoning agents.
+  - Replaced the image-generation step with a deterministic Markdown
+    "preliminary PaperBanana prompt" writer, so the pipeline produces a
+    reviewable prompt document instead of a rendered image.
+  - Added Bedrock client, prompt writer, and pytest unit/integration tests.
+  - Removed Google-specific dependencies (google-genai, google-auth) and
+    added boto3 for AWS SDK access.
+
+See LICENSE for full Apache 2.0 terms and README.md for setup details.

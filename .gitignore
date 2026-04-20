@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Secrets / local config (ONLY the template is committed)
+.env
+.env.*
+!.env.example
+configs/model_config.yaml
+configs/*.local.yaml
+*.pem
+*.key
+credentials
+credentials.json
+
+# AWS / cloud credentials
+.aws/
+aws-credentials*
+.awsrc
+
+# Generated outputs
+outputs/
+results/
+data/
+*.generated.md
+*.generated.jpg
+*.generated.png
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Upstream README (kept locally for reference, not committed)
+README.upstream.md
+
+# Project-specific scratch
+/tmp/
+/scratch/
+CLAUDE.md
+.claude/
+.omc/
