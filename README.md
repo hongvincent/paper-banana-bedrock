@@ -142,6 +142,33 @@ python scripts/banana_prompt.py my_diagram.txt \
 
 팔레트 옵션: `aws-brand` (기본), `neutral-editorial`, `paper-print`, 또는 프리폼 문자열.
 
+### 여러 버전 실험 (N개 변형 병렬 생성)
+
+같은 설명을 서로 다른 창작 방향으로 N개 뽑아 A/B/C 테스트하려면:
+
+```bash
+# 자동 방향 제안 (Claude가 N개 서로 다른 방향을 먼저 제안 → 각각 확장)
+python scripts/banana_variants.py my_diagram.txt --count 3
+
+# 방향을 직접 지정
+python scripts/banana_variants.py my_diagram.txt \
+  --modes "flat-vector,isometric-depth,hand-drawn-blueprint"
+```
+
+결과 구조:
+
+```
+outputs/variants_20260420T111655Z/
+├── index.md                                          # 모든 변형 비교 요약
+├── 20260420T111718Z_visualizer_variant-01-*.md       # 변형 1
+├── 20260420T111718Z_visualizer_variant-02-*.md       # 변형 2
+└── 20260420T111721Z_visualizer_variant-03-*.md       # 변형 3
+```
+
+- `index.md`는 각 변형의 방향 설명 + 파일 링크를 제공합니다.
+- 내부적으로 `asyncio.gather`로 Bedrock 호출을 **동시 실행**하므로 N개라도 1~2회분 지연만 발생합니다.
+- 각 `.md`를 nano-banana / DALL·E / Flux / Imagen에 따로 투입하면 세 가지 다른 이미지를 얻을 수 있습니다.
+
 ### 전체 파이프라인
 
 ```bash
