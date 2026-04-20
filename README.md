@@ -120,6 +120,28 @@ print("wrote:", md_path)
 PY
 ```
 
+### 원샷: 기존 다이어그램을 개선한 프롬프트 MD 생성
+
+이미 있는 흑백 아키텍처 드래프트를 AWS 브랜드 컬러가 드러나는 초벌 프롬프트로 바꾸고 싶을 때:
+
+```bash
+# 1) 설명을 텍스트 파일에 정리 (그룹·노드·연결 위주, 2~3단락이면 충분)
+cat > my_diagram.txt <<'EOF'
+5개 그룹으로 구성된 CRM 아키텍처. Group 1: MLOps (Step Functions → Macie →
+Claude 4.6 → SageMaker Pipelines). Group 2: Network (WAF → API Gateway → Cognito).
+...
+EOF
+
+# 2) 한 줄로 실행
+python scripts/banana_prompt.py my_diagram.txt \
+  --palette aws-brand --aspect 16:9
+
+# 3) outputs/*.md 에 nano-banana 급 이미지 생성 프롬프트가 생성됨.
+#    → 그대로 Nano Banana / DALL-E / Flux / Imagen 등에 투입
+```
+
+팔레트 옵션: `aws-brand` (기본), `neutral-editorial`, `paper-print`, 또는 프리폼 문자열.
+
 ### 전체 파이프라인
 
 ```bash
