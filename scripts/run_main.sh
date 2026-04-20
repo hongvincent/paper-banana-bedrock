@@ -15,4 +15,4 @@
 
 # Run Main Script
 echo "Running main.py..."
-python main.py --exp_mode "dev_full" --split_name "test" --task_name "diagram" --retrieval_setting "auto" --max_critic_rounds 3
+python main.py --exp_mode "dev_full" --split_name "test" --task_name "diagram" --retrieval_setting "auto" --max_critic_rounds 3 --main_model_name "global.anthropic.claude-sonnet-4-6" --image_gen_model_name "stub.prompt-md-writer"

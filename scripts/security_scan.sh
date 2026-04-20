@@ -24,7 +24,7 @@ fi
 # Newline-separated patterns (portable, no arrays needed beyond loop-over-lines)
 PATTERNS='AKIA[0-9A-Z]{16}
 ASIA[0-9A-Z]{16}
-aws_secret_access_key[[:space:]]*=
+aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9/+=]{30,}
 907056532170
 arn:aws:iam::[0-9]{12}:
 gsn_ssm

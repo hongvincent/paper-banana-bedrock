@@ -18,13 +18,16 @@ Vanilla Agent - Directly rendering images based on the method section.
 
 from concurrent.futures import ProcessPoolExecutor
 from typing import Dict, Any
-from google.genai import types
 import base64, io, asyncio, re
+import logging
 import matplotlib.pyplot as plt
 from PIL import Image
 
 from utils import generation_utils, image_utils
+from utils.prompt_md_writer import write_prompt_md, PLACEHOLDER_JPG_B64
 from .base_agent import BaseAgent
+
+logger = logging.getLogger(__name__)
 
 
 def _execute_plot_code_worker(code_text: str) -> str:
@@ -142,68 +145,35 @@ class VisualizerAgent(BaseAgent):
             prompt_text = cfg["prompt_template"].format(desc=data[desc_key])
             content_list = [{"type": "text", "text": prompt_text}]
             
-            gen_config_args = {
-                "system_instruction": self.system_prompt,
-                "temperature": self.exp_config.temperature,
-                "candidate_count": 1,
-                "max_output_tokens": cfg["max_output_tokens"],
-            }
-            
             # Resolve aspect ratio for image generation
             aspect_ratio = "1:1"
             if "additional_info" in data and "rounded_ratio" in data["additional_info"]:
                 aspect_ratio = data["additional_info"]["rounded_ratio"]
 
             if cfg["use_image_generation"]:
-                if "gpt-image" in self.model_name:
-                    image_config = {
-                        "size": "1536x1024",
-                        "quality": "high",
-                        "background": "opaque",
-                        "output_format": "png",
-                    }
-                    response_list = await generation_utils.call_openai_image_generation_with_retry_async(
-                        model_name=self.model_name,
-                        prompt=prompt_text,
-                        config=image_config,
-                        max_attempts=5,
-                        retry_delay=30,
-                    )
-                elif generation_utils.openrouter_client is not None:
-                    # OpenRouter image generation
-                    image_config = {
-                        "system_prompt": self.system_prompt,
-                        "temperature": self.exp_config.temperature,
+                import os
+                md_path, placeholder_b64 = write_prompt_md(
+                    prompt=prompt_text,
+                    metadata={
+                        "agent": "visualizer",
+                        "desc_key": desc_key,
                         "aspect_ratio": aspect_ratio,
-                        "image_size": "1k",
-                    }
-                    response_list = await generation_utils.call_openrouter_image_generation_with_retry_async(
-                        model_name=self.model_name,
-                        contents=content_list,
-                        config=image_config,
-                        max_attempts=5,
-                        retry_delay=30,
-                    )
-                else:
-                    # Gemini direct image generation
-                    gen_config_args["response_modalities"] = ["IMAGE"]
-                    gen_config_args["image_config"] = types.ImageConfig(
-                        aspect_ratio=aspect_ratio,
-                        image_size="1k",
-                    )
-                    response_list = await generation_utils.call_gemini_with_retry_async(
-                        model_name=self.model_name,
-                        contents=content_list,
-                        config=types.GenerateContentConfig(**gen_config_args),
-                        max_attempts=5,
-                        retry_delay=30,
-                    )
+                        "model": self.model_name,
+                    },
+                    output_dir=os.environ.get("OUTPUT_DIR", "./outputs"),
+                )
+                response_list = [placeholder_b64]
+                logger.info(f"[stub] wrote preliminary prompt MD: {md_path}")
             else:
                 # Code generation for plots — use the unified router
                 response_list = await generation_utils.call_model_with_retry_async(
                     model_name=self.model_name,
                     contents=content_list,
-                    config=types.GenerateContentConfig(**gen_config_args),
+                    config={
+                        "system_prompt": self.system_prompt,
+                        "temperature": self.exp_config.temperature,
+                        "max_tokens": cfg["max_output_tokens"],
+                    },
                     max_attempts=5,
                     retry_delay=30,
                 )

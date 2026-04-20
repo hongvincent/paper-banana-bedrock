@@ -18,13 +18,16 @@ Polish Agent - Applies style guidelines to ground truth images
 
 import base64
 import io
+import logging
 from pathlib import Path
 from typing import Dict, Any
-from google.genai import types
 from PIL import Image
 
 from utils import generation_utils, image_utils
+from utils.prompt_md_writer import write_prompt_md, PLACEHOLDER_JPG_B64
 from .base_agent import BaseAgent
+
+logger = logging.getLogger(__name__)
 
 
 def _load_image_as_base64(image_path: str) -> str:
@@ -80,12 +83,11 @@ class PolishAgent(BaseAgent):
             response_list = await generation_utils.call_model_with_retry_async(
                 model_name=self.main_model_name,
                 contents=content_list,
-                config=types.GenerateContentConfig(
-                    system_instruction=self.suggestion_system_prompt,
-                    temperature=1,
-                    candidate_count=1,
-                    max_output_tokens=50000,
-                ),
+                config={
+                    "system_prompt": self.suggestion_system_prompt,
+                    "temperature": 1,
+                    "max_tokens": 50000,
+                },
                 max_attempts=3,
                 retry_delay=10,
             )
@@ -164,39 +166,20 @@ class PolishAgent(BaseAgent):
         # Generate polished image
         aspect_ratio = data.get("additional_info", {}).get("rounded_ratio", "16:9")
         try:
-            if generation_utils.openrouter_client is not None:
-                image_config = {
-                    "system_prompt": self.system_prompt,
-                    "temperature": self.exp_config.temperature,
+            import os
+            md_path, placeholder_b64 = write_prompt_md(
+                prompt=user_prompt,
+                metadata={
+                    "agent": "polish",
+                    "desc_key": task_name,
                     "aspect_ratio": aspect_ratio,
-                    "image_size": "1k",
-                }
-                response_list = await generation_utils.call_openrouter_image_generation_with_retry_async(
-                    model_name=self.image_gen_model_name,
-                    contents=content_list,
-                    config=image_config,
-                    max_attempts=5,
-                    retry_delay=30,
-                )
-            else:
-                response_list = await generation_utils.call_gemini_with_retry_async(
-                    model_name=self.image_gen_model_name,
-                    contents=content_list,
-                    config=types.GenerateContentConfig(
-                        system_instruction=self.system_prompt,
-                        temperature=self.exp_config.temperature,
-                        candidate_count=1,
-                        max_output_tokens=50000,
-                        response_modalities=["IMAGE"],
-                        image_config=types.ImageConfig(
-                            aspect_ratio=aspect_ratio,
-                            image_size="1k",
-                        ),
-                    ),
-                    max_attempts=5,
-                    retry_delay=30,
-                )
-            
+                    "model": self.image_gen_model_name,
+                },
+                output_dir=os.environ.get("OUTPUT_DIR", "./outputs"),
+            )
+            response_list = [placeholder_b64]
+            logger.info(f"[stub] wrote preliminary prompt MD: {md_path}")
+
             if response_list and response_list[0]:
                 # Convert PNG to JPG
                 converted_jpg = image_utils.convert_png_b64_to_jpg_b64(response_list[0])
@@ -204,12 +187,12 @@ class PolishAgent(BaseAgent):
                     output_key = f"polished_{task_name}_base64_jpg"
                     data[output_key] = converted_jpg
                 else:
-                    print(f"⚠️  Image conversion failed")
+                    print(f"Image conversion failed")
             else:
-                print(f"⚠️  No response from model")
-                
+                print(f"No response from model")
+
         except Exception as e:
-            print(f"❌ Error during image generation: {e}")
+            print(f"Error during image generation: {e}")
         
         return data
 

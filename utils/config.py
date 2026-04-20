@@ -61,13 +61,16 @@ class ExpConfig:
             self.main_model_name = os.environ.get("MAIN_MODEL_NAME", "")
         if not self.image_gen_model_name:
             self.image_gen_model_name = os.environ.get("IMAGE_GEN_MODEL_NAME", "")
+        # Env-var override for Bedrock model ID
+        if not self.main_model_name:
+            self.main_model_name = os.environ.get("BEDROCK_MODEL_ID", "")
         # Hard defaults so model name is never empty
         if not self.main_model_name:
-            self.main_model_name = "gemini-3.1-pro-preview"
+            self.main_model_name = "global.anthropic.claude-sonnet-4-6"
             print(f"Warning: main_model_name not configured, falling back to '{self.main_model_name}'. "
-                  "Set it in configs/model_config.yaml or via --main-model-name.")
+                  "Set it in configs/model_config.yaml, via BEDROCK_MODEL_ID, or via --main-model-name.")
         if not self.image_gen_model_name:
-            self.image_gen_model_name = "gemini-3.1-flash-image-preview"
+            self.image_gen_model_name = "stub.prompt-md-writer"
             print(f"Warning: image_gen_model_name not configured, falling back to '{self.image_gen_model_name}'. "
                   "Set it in configs/model_config.yaml or via --image-gen-model-name.")
         self.timestamp = (

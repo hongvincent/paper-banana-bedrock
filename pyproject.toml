@@ -1,0 +1,8 @@
+[project]
+name = "paper-banana-bedrock"
+requires-python = ">=3.10"
+version = "0.1.0"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
